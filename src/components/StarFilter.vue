@@ -8,17 +8,15 @@ const props = defineProps({
   },
 });
 
-const stars = ref(props.minStars);
-
 const emit = defineEmits(["update:minStars"]);
 
+const stars = ref(props.minStars);
+
 function emitMinStars() {
-  emit("update:minStars", stars.value);
+  emit("update:minStars", parseInt(stars.value));
 }
 
-watch(stars, () => {
-  emitMinStars();
-});
+watch(stars, emitMinStars);
 </script>
 
 <template>
