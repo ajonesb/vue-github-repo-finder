@@ -13,6 +13,7 @@ const { repos, loading, error } = storeToRefs(repoStore);
 const selectedLanguages = ref([]);
 const dateRange = ref({ start: null, end: null });
 const minStars = ref(100);
+const hasSearched = ref(false);
 
 const reposByLanguage = computed(() => {
   const result = {};
@@ -25,6 +26,7 @@ const reposByLanguage = computed(() => {
 });
 
 async function searchRepos() {
+  hasSearched.value = true;
   repoStore.clearRepos();
   for (const language of selectedLanguages.value) {
     await repoStore.fetchRepos(
@@ -55,55 +57,69 @@ function onScroll(event, language) {
 </script>
 
 <template>
-  <div class="container mx-auto px-4 py-8" style="max-width: 51%; margin: auto">
-    <h1 class="text-3xl font-bold mb-6">GitHub Repository Finder</h1>
-    <div class="filters space-y-4 mb-8">
-      <LanguageFilter v-model:selectedLanguages="selectedLanguages" />
-      <DateRangeFilter v-model:dateRange="dateRange" />
-      <StarFilter v-model:minStars="minStars" />
-      <button
-        @click="searchRepos"
-        class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded transition duration-300"
-      >
-        Search Repositories
-      </button>
-    </div>
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-1xl text-center font-bold mb-6 uppercase">
+      GitHub Repository Finder
+    </h1>
+    <div class="flex flex-row space-x-6">
+      <!-- Left side: Filters -->
+      <div class="w-1/3 space-y-4">
+        <div class="bg-gray-100 p-6 rounded-lg shadow-md">
+          <LanguageFilter v-model:selectedLanguages="selectedLanguages" />
+          <DateRangeFilter v-model:dateRange="dateRange" class="mt-4" />
+          <StarFilter v-model:minStars="minStars" class="mt-4" />
+          <button
+            @click="searchRepos"
+            class="w-full mt-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded transition duration-300"
+          >
+            Search Repositories
+          </button>
+        </div>
+      </div>
 
-    <div v-if="loading" class="text-center py-8">
-      <div
-        class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"
-      ></div>
-      <p class="mt-4 text-gray-600">Loading repositories...</p>
-    </div>
+      <!-- Right side: Results -->
+      <div class="w-2/3">
+        <div v-if="loading" class="text-center py-8">
+          <div
+            class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"
+          ></div>
+          <p class="mt-4 text-gray-600">Loading repositories...</p>
+        </div>
 
-    <div
-      v-else-if="error"
-      class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded"
-      role="alert"
-    >
-      <p class="font-bold">Error</p>
-      <p>{{ error }}</p>
-    </div>
-
-    <div
-      v-else-if="Object.keys(reposByLanguage).length === 0"
-      class="text-center py-8 text-gray-600"
-    >
-      No repositories found. Try adjusting your search criteria.
-    </div>
-
-    <div v-else class="space-y-8">
-      <div
-        v-for="(langRepos, lang) in reposByLanguage"
-        :key="lang"
-        class="language-section"
-      >
-        <h2 class="text-2xl font-bold mb-4">{{ lang }}</h2>
         <div
-          class="repo-list space-y-4 max-h-96 overflow-y-auto"
-          @scroll="onScroll($event, lang)"
+          v-else-if="error"
+          class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded"
+          role="alert"
         >
-          <RepoTile v-for="repo in langRepos" :key="repo.id" :repo="repo" />
+          <p class="font-bold">Error</p>
+          <p>{{ error }}</p>
+        </div>
+
+        <div v-else-if="!hasSearched" class="text-center py-8 text-gray-600">
+          Use the filters on the left to search for repositories.
+        </div>
+
+        <div
+          v-else-if="Object.keys(reposByLanguage).length === 0"
+          class="text-center py-8 text-gray-600"
+        >
+          No repositories found. Try adjusting your search criteria.
+        </div>
+
+        <div v-else class="space-y-8">
+          <div
+            v-for="(langRepos, lang) in reposByLanguage"
+            :key="lang"
+            class="language-section bg-white shadow rounded-lg p-4"
+          >
+            <h2 class="text-2xl font-bold mb-4">{{ lang }}</h2>
+            <div
+              class="repo-list space-y-4 max-h-96 overflow-y-auto"
+              @scroll="onScroll($event, lang)"
+            >
+              <RepoTile v-for="repo in langRepos" :key="repo.id" :repo="repo" />
+            </div>
+          </div>
         </div>
       </div>
     </div>
