@@ -181,5 +181,6 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 ## Demo
 https://vue-github-repo-finder.netlify.app/
 
-![image](https://github.com/user-attachments/assets/1b048734-e4c1-4d07-9499-ccd16daf1bf3)
+![image](https://github.com/user-attachments/assets/0e65d9a2-2cb5-46be-8cfb-c3c9a6898f25)
+
 
