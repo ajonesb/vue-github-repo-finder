@@ -15,12 +15,21 @@ const dateRange = ref({ start: null, end: null });
 const minStars = ref(100);
 const hasSearched = ref(false);
 
+const nonEmptyRepoLanguages = computed(() => {
+  return Object.keys(reposByLanguage.value).filter(
+    (lang) => reposByLanguage.value[lang].length > 0
+  );
+});
+
 const reposByLanguage = computed(() => {
   const result = {};
   selectedLanguages.value.forEach((lang) => {
-    result[lang] = repos.value
+    const filteredRepos = repos.value
       .filter((repo) => repo.language === lang)
       .sort((a, b) => b.stargazers_count - a.stargazers_count);
+    if (filteredRepos.length > 0) {
+      result[lang] = filteredRepos;
+    }
   });
   return result;
 });
@@ -100,7 +109,7 @@ function onScroll(event, language) {
         </div>
 
         <div
-          v-else-if="Object.keys(reposByLanguage).length === 0"
+          v-else-if="nonEmptyRepoLanguages.length === 0"
           class="text-center py-8 text-gray-600"
         >
           No repositories found. Try adjusting your search criteria.
@@ -108,7 +117,7 @@ function onScroll(event, language) {
 
         <div v-else class="space-y-8">
           <div
-            v-for="(langRepos, lang) in reposByLanguage"
+            v-for="lang in nonEmptyRepoLanguages"
             :key="lang"
             class="language-section bg-white shadow rounded-lg p-4"
           >
@@ -117,7 +126,11 @@ function onScroll(event, language) {
               class="repo-list space-y-4 max-h-96 overflow-y-auto"
               @scroll="onScroll($event, lang)"
             >
-              <RepoTile v-for="repo in langRepos" :key="repo.id" :repo="repo" />
+              <RepoTile
+                v-for="repo in reposByLanguage[lang]"
+                :key="repo.id"
+                :repo="repo"
+              />
             </div>
           </div>
         </div>
