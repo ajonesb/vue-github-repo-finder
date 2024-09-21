@@ -167,7 +167,8 @@ npm run lint
 
 ## Future Improvements
 
-- Add unit and integration tests
+- Add unit and integration tests (Jest / Vite Test, Cypress.io)
+- Integrate Typescript
 - Implement caching to reduce API calls
 - Add more detailed repository information and filtering options
 - Implement user authentication to increase API rate limits
@@ -176,3 +177,6 @@ npm run lint
 ### Customize Configuration
 
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+## Demo
+https://vue-github-repo-finder.netlify.app/
