@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import LanguageFilter from "@/components/LanguageFilter.vue";
 import DateRangeFilter from "@/components/DateRangeFilter.vue";
 import StarFilter from "@/components/StarFilter.vue";
@@ -14,6 +14,16 @@ const selectedLanguages = ref([]);
 const dateRange = ref({ start: null, end: null });
 const minStars = ref(100);
 const hasSearched = ref(false);
+const dateError = ref("");
+
+const isSearchValid = computed(() => {
+  return (
+    selectedLanguages.value.length > 0 &&
+    dateRange.value.start &&
+    dateRange.value.end &&
+    !dateError.value
+  );
+});
 
 const nonEmptyRepoLanguages = computed(() => {
   return Object.keys(reposByLanguage.value).filter(
@@ -34,7 +44,26 @@ const reposByLanguage = computed(() => {
   return result;
 });
 
+watch(dateRange, validateDateRange, { deep: true });
+
+function validateDateRange() {
+  dateError.value = "";
+  if (dateRange.value.start && dateRange.value.end) {
+    const start = new Date(dateRange.value.start);
+    const end = new Date(dateRange.value.end);
+    const today = new Date();
+
+    if (start > today || end > today) {
+      dateError.value = "Dates cannot be in the future.";
+    } else if (start > end) {
+      dateError.value = "Start date must be before end date.";
+    }
+  }
+}
+
 async function searchRepos() {
+  if (!isSearchValid.value) return;
+
   hasSearched.value = true;
   repoStore.clearRepos();
   for (const language of selectedLanguages.value) {
@@ -77,9 +106,18 @@ function onScroll(event, language) {
           <LanguageFilter v-model:selectedLanguages="selectedLanguages" />
           <DateRangeFilter v-model:dateRange="dateRange" class="mt-4" />
           <StarFilter v-model:minStars="minStars" class="mt-4" />
+          <div v-if="dateError" class="text-red-500 text-sm mt-2">
+            {{ dateError }}
+          </div>
           <button
             @click="searchRepos"
-            class="w-full mt-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded transition duration-300"
+            :disabled="!isSearchValid"
+            :class="[
+              'w-full mt-4 font-semibold px-4 py-2 rounded transition duration-300',
+              isSearchValid
+                ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed',
+            ]"
           >
             Search Repositories
           </button>
