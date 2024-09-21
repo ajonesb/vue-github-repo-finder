@@ -99,9 +99,9 @@ function onScroll(event, language) {
     <h1 class="text-1xl text-center font-bold mb-6 uppercase">
       GitHub Repository Finder
     </h1>
-    <div class="flex flex-row space-x-6">
+    <div class="flex flex-col lg:flex-row lg:space-x-6">
       <!-- Left side: Filters -->
-      <div class="w-1/3 space-y-4">
+      <div class="w-full lg:w-1/3 mb-6 lg:mb-0">
         <div class="bg-gray-100 p-6 rounded-lg shadow-md">
           <LanguageFilter v-model:selectedLanguages="selectedLanguages" />
           <DateRangeFilter v-model:dateRange="dateRange" class="mt-4" />
@@ -125,7 +125,7 @@ function onScroll(event, language) {
       </div>
 
       <!-- Right side: Results -->
-      <div class="w-2/3">
+      <div class="w-full lg:w-2/3">
         <div v-if="loading" class="text-center py-8">
           <div
             class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"
